@@ -174,6 +174,8 @@ export default function Login() {
 
       if($('#btnSkipCrewmate')) $('#btnSkipCrewmate').onclick = () => skipToTerminal(false);
       if($('#btnSkipImpostor')) $('#btnSkipImpostor').onclick = () => skipToTerminal(true);
+      if($('#btnDirectCrewmate')) $('#btnDirectCrewmate').onclick = () => navigate('/crewmate');
+      if($('#btnDirectImposter')) $('#btnDirectImposter').onclick = () => navigate('/imposter');
       if($('#btnQuickAdmin')) $('#btnQuickAdmin').onclick = () => navigate('/admin');
 
       onWheel=e=>{
@@ -424,6 +426,52 @@ export default function Login() {
                     }}
                   >
                     ⚡ SKIP (IMPOSTOR)
+                  </button>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <button
+                    type="button"
+                    id="btnDirectCrewmate"
+                    style={{
+                      padding: '8px 6px',
+                      background: 'rgba(31, 143, 255, 0.12)',
+                      border: '1px solid rgba(31, 143, 255, 0.5)',
+                      borderRadius: '8px',
+                      color: '#7fe3ff',
+                      fontFamily: "'Rajdhani', sans-serif",
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      letterSpacing: '0.04em',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    🪐 3D CREWMATE ARENA
+                  </button>
+                  <button
+                    type="button"
+                    id="btnDirectImposter"
+                    style={{
+                      padding: '8px 6px',
+                      background: 'rgba(255, 30, 45, 0.16)',
+                      border: '1px solid rgba(255, 30, 45, 0.5)',
+                      borderRadius: '8px',
+                      color: '#ff8a8a',
+                      fontFamily: "'Rajdhani', sans-serif",
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      letterSpacing: '0.04em',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    ☢ 3D IMPOSTER ARENA
                   </button>
                 </div>
                 <button

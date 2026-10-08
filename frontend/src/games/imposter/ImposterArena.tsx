@@ -138,8 +138,8 @@ export default function ImposterArena() {
     } catch {}
   };
 
-  // View state: Task View vs Arena View
-  const [inArena, setInArena] = useState(false);
+  // View state: Task View vs Arena View (defaults to true so Sabotage Arena opens immediately)
+  const [inArena, setInArena] = useState(true);
 
   // Active Sabotage State
   const [sab, setSab] = useState<{ team: number; type: string; end: number } | null>(null);
@@ -243,7 +243,7 @@ export default function ImposterArena() {
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [teams, sab, endSabotage]);
+  }, [teams, sab, inArena, endSabotage]);
 
   // Pointer drag for Orbit
   const handlePointerDown = (e: React.PointerEvent) => {
@@ -372,7 +372,8 @@ export default function ImposterArena() {
   const handleGameComplete = (gameKey: string) => {
     sfx.current.fix();
     setCompletedGames(prev => ({ ...prev, [gameKey]: true }));
-    showToast(`✔ ${gameKey.toUpperCase()} TASK COMPLETED!`);
+    updatePts(ipts + 15);
+    showToast(`✔ ${gameKey.toUpperCase()} TASK COMPLETED (+15 PTS)!`);
     setTimeout(() => {
       setActiveGameKey(null);
     }, 1200);
@@ -387,185 +388,230 @@ export default function ImposterArena() {
       <div className="dim-layer" />
       <div className="alarm-layer" />
 
-      {/* Task View (Home) */}
-      <div className="home-container">
-        <button
-          type="button"
-          className="btn-action"
-          style={{ position: 'absolute', top: '12px', right: '12px' }}
-          onClick={() => {
-            setAdminOpen(true);
-            setAdminPin('');
-            setAdminUnlocked(false);
-          }}
-        >
-          🔒 Admin
-        </button>
-
-        <h1>CREWMATE<br />TASKS</h1>
-        <p>Finish your tasks. Keep the ship alive.</p>
-
-        <div className="tasks-grid">
-          <button
-            type="button"
-            className={`g-btn ${completedGames.wires ? 'done' : ''}`}
-            onClick={() => {
-              sfx.current.open();
-              setActiveGameKey('wires');
-            }}
-          >
-            <span>🔌</span>
-            Fix Wiring
-            <small>Match the colours</small>
-          </button>
-
-          <button
-            type="button"
-            className={`g-btn ${completedGames.simon ? 'done' : ''}`}
-            onClick={() => {
-              sfx.current.open();
-              setActiveGameKey('simon');
-            }}
-          >
-            <span>🧠</span>
-            Start Reactor
-            <small>Repeat the pattern</small>
-          </button>
-
-          <button
-            type="button"
-            className={`g-btn ${completedGames.blast ? 'done' : ''}`}
-            onClick={() => {
-              sfx.current.open();
-              setActiveGameKey('blast');
-            }}
-          >
-            <span>☄️</span>
-            Clear Asteroids
-            <small>Tap to destroy</small>
-          </button>
-
-          <button
-            type="button"
-            className={`g-btn ${completedGames.card ? 'done' : ''}`}
-            onClick={() => {
-              sfx.current.open();
-              setActiveGameKey('card');
-            }}
-          >
-            <span>💳</span>
-            Swipe Card
-            <small>Right speed wins</small>
-          </button>
-        </div>
+      {/* 3D Sabotage Arena Stage - Always mounted so physics loop never interrupts */}
+      <div
+        className="stage-container"
+        ref={stageRef}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+      >
+        {teams.map(t => {
+          const isTargetSabotaged = sab && sab.team === t.id;
+          const hideScore = isTargetSabotaged && sab.type === 'comms';
+          return (
+            <div
+              key={t.id}
+              className={`team-item ${isTargetSabotaged ? 'sab' : ''}`}
+              data-id={t.id}
+              style={{ '--c': t.color } as React.CSSProperties}
+            >
+              <svg viewBox="0 0 44 52">
+                <rect x="1" y="20" width="9" height="17" rx="4" fill={t.color} />
+                <path
+                  d="M9 20a13 13 0 0 1 26 0v20a4 4 0 0 1-4 4h-5v-6h-8v6h-5a4 4 0 0 1-4-4z"
+                  fill={t.color}
+                />
+                <rect x="19" y="13" width="19" height="12" rx="6" fill="#a8e1f5" stroke="#1b3a4a" strokeWidth="1.5" />
+                <rect x="24" y="15" width="9" height="3" rx="1.5" fill="#fff" opacity="0.7" />
+              </svg>
+              <div className="n">{t.name}</div>
+              <div className="s">
+                {hideScore ? 'Score: ???' : `Score: ${t.score}`}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Floating Red Imposter FAB */}
-      <button
-        type="button"
-        className="imp-fab"
-        title="Open Sabotage Arena"
-        onClick={() => {
-          getAudioContext();
-          sfx.current.open();
-          setInArena(true);
-        }}
-      >
-        <svg viewBox="0 0 44 52">
-          <rect x="1" y="20" width="9" height="17" rx="4" fill="#ff1e2d" />
-          <path d="M9 20a13 13 0 0 1 26 0v20a4 4 0 0 1-4 4h-5v-6h-8v6h-5a4 4 0 0 1-4-4z" fill="#ff1e2d" />
-          <rect x="19" y="13" width="19" height="12" rx="6" fill="#a8e1f5" stroke="#1b3a4a" strokeWidth="1.5" />
-          <rect x="24" y="15" width="9" height="3" rx="1.5" fill="#fff" opacity="0.7" />
-        </svg>
-      </button>
-
-      {/* 3D Sabotage Arena View */}
+      {/* Top Header Bar when in Sabotage Arena */}
       {inArena && (
-        <div className="arena-container">
-          <div className="top-bar">
-            {sab && (
-              <div className="sabotage-banner">
-                <span>⚠</span>
-                <b>{sabTimerText}</b>
-                <button
-                  type="button"
-                  className="btn-action red"
-                  onClick={() => endSabotage(false)}
-                >
-                  FIX
-                </button>
-              </div>
-            )}
+        <div className="top-bar">
+          {sab && (
+            <div className="sabotage-banner">
+              <span>⚠</span>
+              <b>{sabTimerText}</b>
+              <button
+                type="button"
+                className="btn-action red"
+                onClick={() => endSabotage(false)}
+              >
+                FIX
+              </button>
+            </div>
+          )}
 
-            <span style={{ flex: 1 }} />
+          <span style={{ flex: 1 }} />
 
-            <span className="pts-chip">
-              ⭐ <b>{ipts}</b> pts
-            </span>
-
-            <button
-              type="button"
-              className="btn-action"
-              onClick={() => {
-                const nextMuted = !muted;
-                setMuted(nextMuted);
-                if (nextMuted) siren(false);
-                else if (sab) siren(true);
-              }}
-            >
-              {muted ? '🔇' : '🔊'}
-            </button>
-
-            <button
-              type="button"
-              className="btn-action"
-              onClick={() => {
-                closeTeamMenu();
-                sfx.current.tap();
-                setInArena(false);
-              }}
-            >
-              — Minimize
-            </button>
-          </div>
-
-          <div
-            className="stage-container"
-            ref={stageRef}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
+          <button
+            type="button"
+            className="btn-action"
+            onClick={() => {
+              setAdminOpen(true);
+              setAdminPin('');
+              setAdminUnlocked(false);
+            }}
           >
-            {teams.map(t => {
-              const isTargetSabotaged = sab && sab.team === t.id;
-              const hideScore = isTargetSabotaged && sab.type === 'comms';
-              return (
-                <div
-                  key={t.id}
-                  className={`team-item ${isTargetSabotaged ? 'sab' : ''}`}
-                  data-id={t.id}
-                  style={{ '--c': t.color } as React.CSSProperties}
-                >
-                  <svg viewBox="0 0 44 52">
-                    <rect x="1" y="20" width="9" height="17" rx="4" fill={t.color} />
-                    <path
-                      d="M9 20a13 13 0 0 1 26 0v20a4 4 0 0 1-4 4h-5v-6h-8v6h-5a4 4 0 0 1-4-4z"
-                      fill={t.color}
-                    />
-                    <rect x="19" y="13" width="19" height="12" rx="6" fill="#a8e1f5" stroke="#1b3a4a" strokeWidth="1.5" />
-                    <rect x="24" y="15" width="9" height="3" rx="1.5" fill="#fff" opacity="0.7" />
-                  </svg>
-                  <div className="n">{t.name}</div>
-                  <div className="s">
-                    {hideScore ? 'Score: ???' : `Score: ${t.score}`}
-                  </div>
-                </div>
-              );
-            })}
+            🔒 Admin
+          </button>
+
+          <span className="pts-chip">
+            ⭐ <b>{ipts}</b> pts
+          </span>
+
+          <button
+            type="button"
+            className="btn-action"
+            onClick={() => {
+              const nextMuted = !muted;
+              setMuted(nextMuted);
+              if (nextMuted) siren(false);
+              else if (sab) siren(true);
+            }}
+          >
+            {muted ? '🔇' : '🔊'}
+          </button>
+
+          <button
+            type="button"
+            className="btn-action"
+            onClick={() => {
+              closeTeamMenu();
+              sfx.current.tap();
+              setInArena(false);
+            }}
+            title="Disguise as Crewmate and do tasks"
+          >
+            🎭 Disguise Tasks
+          </button>
+
+          <button
+            type="button"
+            className="btn-action"
+            onClick={() => navigate('/player')}
+          >
+            ← Terminal
+          </button>
+        </div>
+      )}
+
+      {/* Sabotage Hint Bar */}
+      {inArena && (
+        <div className="hint-bar">DRAG TO SPIN · TAP A TEAM TO SABOTAGE</div>
+      )}
+
+      {/* Task View (Disguise Mode) */}
+      {!inArena && (
+        <div className="home-container">
+          <div style={{ display: 'flex', gap: '8px', position: 'absolute', top: '12px', right: '12px' }}>
+            <button
+              type="button"
+              className="btn-action red"
+              onClick={() => {
+                sfx.current.open();
+                setInArena(true);
+              }}
+            >
+              ⚡ Open Sabotage Arena
+            </button>
+            <button
+              type="button"
+              className="btn-action"
+              onClick={() => navigate('/player')}
+            >
+              ← Terminal
+            </button>
+            <button
+              type="button"
+              className="btn-action"
+              onClick={() => {
+                setAdminOpen(true);
+                setAdminPin('');
+                setAdminUnlocked(false);
+              }}
+            >
+              🔒 Admin
+            </button>
           </div>
 
-          <div className="hint-bar">DRAG TO SPIN · TAP A TEAM TO SABOTAGE</div>
+          <h1>CREWMATE<br />TASKS</h1>
+          <p>Finish your tasks. Blend in with the crew.</p>
+
+          <div className="tasks-grid">
+            <button
+              type="button"
+              className={`g-btn ${completedGames.wires ? 'done' : ''}`}
+              onClick={() => {
+                sfx.current.open();
+                setActiveGameKey('wires');
+              }}
+            >
+              <span>🔌</span>
+              Fix Wiring
+              <small>Match the colours</small>
+            </button>
+
+            <button
+              type="button"
+              className={`g-btn ${completedGames.simon ? 'done' : ''}`}
+              onClick={() => {
+                sfx.current.open();
+                setActiveGameKey('simon');
+              }}
+            >
+              <span>🧠</span>
+              Start Reactor
+              <small>Repeat the pattern</small>
+            </button>
+
+            <button
+              type="button"
+              className={`g-btn ${completedGames.blast ? 'done' : ''}`}
+              onClick={() => {
+                sfx.current.open();
+                setActiveGameKey('blast');
+              }}
+            >
+              <span>☄️</span>
+              Clear Asteroids
+              <small>Tap to destroy</small>
+            </button>
+
+            <button
+              type="button"
+              className={`g-btn ${completedGames.card ? 'done' : ''}`}
+              onClick={() => {
+                sfx.current.open();
+                setActiveGameKey('card');
+              }}
+            >
+              <span>💳</span>
+              Swipe Card
+              <small>Right speed wins</small>
+            </button>
+          </div>
         </div>
+      )}
+
+      {/* Floating Red Imposter FAB (shown when in disguise task mode) */}
+      {!inArena && (
+        <button
+          type="button"
+          className="imp-fab"
+          title="Open Sabotage Arena"
+          onClick={() => {
+            getAudioContext();
+            sfx.current.open();
+            setInArena(true);
+          }}
+        >
+          <svg viewBox="0 0 44 52">
+            <rect x="1" y="20" width="9" height="17" rx="4" fill="#ff1e2d" />
+            <path d="M9 20a13 13 0 0 1 26 0v20a4 4 0 0 1-4 4h-5v-6h-8v6h-5a4 4 0 0 1-4-4z" fill="#ff1e2d" />
+            <rect x="19" y="13" width="19" height="12" rx="6" fill="#a8e1f5" stroke="#1b3a4a" strokeWidth="1.5" />
+            <rect x="24" y="15" width="9" height="3" rx="1.5" fill="#fff" opacity="0.7" />
+          </svg>
+        </button>
       )}
 
       {/* Sabotage Menu */}

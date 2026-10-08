@@ -319,6 +319,42 @@ export default function Player() {
             </button>
             <button
               type="button"
+              onClick={() => navigate('/crewmate')}
+              style={{
+                background: 'rgba(31, 143, 255, 0.15)',
+                border: '1px solid #1f8fff',
+                color: '#7fe3ff',
+                borderRadius: '4px',
+                padding: '4px 10px',
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '11px',
+                cursor: 'pointer',
+                fontWeight: 600,
+              }}
+              title="Open 3D Crewmate Task Arena"
+            >
+              🪐 CREWMATE ARENA
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/imposter')}
+              style={{
+                background: 'rgba(255, 30, 45, 0.15)',
+                border: '1px solid #ff1e2d',
+                color: '#ff8a8a',
+                borderRadius: '4px',
+                padding: '4px 10px',
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '11px',
+                cursor: 'pointer',
+                fontWeight: 600,
+              }}
+              title="Open 3D Imposter Sabotage Arena"
+            >
+              ☢ IMPOSTER ARENA
+            </button>
+            <button
+              type="button"
               onClick={() => navigate('/admin')}
               style={{
                 background: 'rgba(111, 180, 232, 0.1)',
