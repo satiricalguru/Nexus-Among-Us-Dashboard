@@ -1,0 +1,619 @@
+.imposter-arena-wrapper {
+  --red: #ff1e2d;
+  --ink: #e8f0ff;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  background: #05060a;
+  color: var(--ink);
+  font-family: 'Rajdhani', system-ui, sans-serif;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+.imposter-arena-wrapper * {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.imposter-arena-wrapper .bg-layer {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, #0d1426 0%, #05060a 100%);
+  filter: brightness(0.85);
+  pointer-events: none;
+}
+
+.imposter-arena-wrapper .vig-layer {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 47%, transparent 30%, rgba(0,0,0,0.65) 100%);
+  pointer-events: none;
+}
+
+.imposter-arena-wrapper .dim-layer {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  transition: opacity 0.6s;
+  pointer-events: none;
+  z-index: 150;
+}
+
+.imposter-arena-wrapper.dark .dim-layer {
+  opacity: 0.72;
+}
+
+.imposter-arena-wrapper .alarm-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 160;
+  box-shadow: inset 0 0 0 0 var(--red);
+  opacity: 0;
+}
+
+.imposter-arena-wrapper.alert .alarm-layer {
+  opacity: 1;
+  animation: imp-flash 1s infinite;
+}
+
+@keyframes imp-flash {
+  0%, 100% { box-shadow: inset 0 0 40px 6px rgba(255, 30, 45, 0.15); }
+  50% { box-shadow: inset 0 0 120px 30px rgba(255, 30, 45, 0.65); }
+}
+
+/* Home view: tasks */
+.imposter-arena-wrapper .home-container {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgba(3, 6, 14, 0.74);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  text-align: center;
+}
+
+.imposter-arena-wrapper.in-arena .home-container,
+.imposter-arena-wrapper.in-arena .imp-fab {
+  display: none;
+}
+
+.imposter-arena-wrapper .home-container h1 {
+  font: 700 clamp(38px, 9vw, 72px)/0.95 'Rajdhani', sans-serif;
+  margin: 0;
+  letter-spacing: 4px;
+  color: #7fe3ff;
+  text-shadow: 0 0 22px rgba(60, 200, 255, 0.6);
+}
+
+.imposter-arena-wrapper .home-container p {
+  opacity: 0.75;
+  margin: 8px 0 22px;
+  font-size: 18px;
+}
+
+.imposter-arena-wrapper .tasks-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  width: min(560px, 100%);
+}
+
+.imposter-arena-wrapper .g-btn {
+  background: linear-gradient(160deg, rgba(20, 34, 64, 0.92), rgba(8, 14, 30, 0.95));
+  border: 2px solid #2d6a8a;
+  border-radius: 18px;
+  color: var(--ink);
+  padding: 18px 8px;
+  font: 700 19px 'Rajdhani', sans-serif;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  position: relative;
+  transition: transform 0.1s, border-color 0.2s;
+}
+
+.imposter-arena-wrapper .g-btn span {
+  font-size: 38px;
+}
+
+.imposter-arena-wrapper .g-btn small {
+  font-weight: 500;
+  opacity: 0.65;
+  font-size: 14px;
+}
+
+.imposter-arena-wrapper .g-btn:active {
+  transform: scale(0.96);
+}
+
+.imposter-arena-wrapper .g-btn.done::after {
+  content: "✔";
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  color: #3d6;
+  font-weight: bold;
+}
+
+/* Floating Imposter Button */
+.imposter-arena-wrapper .imp-fab {
+  position: fixed;
+  right: 16px;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  border: 2px solid var(--red);
+  background: rgba(20, 0, 4, 0.9);
+  z-index: 30;
+  padding: 8px;
+  cursor: pointer;
+  animation: imp-pulse 2s infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imposter-arena-wrapper .imp-fab svg {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes imp-pulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(255, 30, 45, 0.5); }
+  50% { box-shadow: 0 0 30px 6px rgba(255, 30, 45, 0.9); }
+}
+
+/* Arena View */
+.imposter-arena-wrapper .arena-container {
+  display: contents;
+}
+
+.imposter-arena-wrapper .top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 12px 10px;
+  z-index: 200;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+}
+
+.imposter-arena-wrapper .sabotage-banner {
+  flex: 1;
+  display: flex;
+  pointer-events: auto;
+  background: rgba(120, 0, 10, 0.88);
+  border: 1px solid var(--red);
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-weight: 700;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+}
+
+.imposter-arena-wrapper .sabotage-banner b {
+  flex: 1;
+}
+
+.imposter-arena-wrapper .pts-chip {
+  pointer-events: auto;
+  background: rgba(10, 16, 32, 0.85);
+  border: 1px solid #ffd75e;
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-weight: 700;
+  color: #ffd75e;
+}
+
+.imposter-arena-wrapper .btn-action {
+  pointer-events: auto;
+  background: rgba(10, 16, 32, 0.85);
+  color: var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  padding: 8px 13px;
+  font: 700 15px 'Rajdhani', sans-serif;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.imposter-arena-wrapper .btn-action.red {
+  background: var(--red);
+  border-color: var(--red);
+}
+
+.imposter-arena-wrapper .btn-action:active {
+  transform: scale(0.95);
+}
+
+.imposter-arena-wrapper .stage-container {
+  position: fixed;
+  inset: 0;
+  touch-action: none;
+  cursor: grab;
+  z-index: 5;
+}
+
+.imposter-arena-wrapper .stage-container:active {
+  cursor: grabbing;
+}
+
+.imposter-arena-wrapper .team-item {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 128px;
+  padding: 8px 6px 9px;
+  text-align: center;
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(18, 26, 48, 0.9), rgba(8, 12, 24, 0.92));
+  border: 2px solid var(--c);
+  box-shadow: 0 0 18px -4px var(--c), 0 10px 24px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  will-change: transform;
+}
+
+.imposter-arena-wrapper .team-item svg {
+  width: 44px;
+  height: 52px;
+  display: block;
+  margin: 0 auto 2px;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.6));
+}
+
+.imposter-arena-wrapper .team-item .n {
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.1;
+  letter-spacing: 0.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.imposter-arena-wrapper .team-item .s {
+  font-size: 15px;
+  color: #ffd75e;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.imposter-arena-wrapper .team-item.sab {
+  border-color: var(--red);
+  box-shadow: 0 0 34px 6px rgba(255, 30, 45, 0.8);
+  animation: imp-shake 0.25s infinite;
+  z-index: 300 !important;
+}
+
+.imposter-arena-wrapper .team-item.sab::after {
+  content: "⚠ SABOTAGED";
+  position: absolute;
+  left: 50%;
+  top: -12px;
+  transform: translateX(-50%);
+  background: var(--red);
+  color: #fff;
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 9px;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+@keyframes imp-shake {
+  0% { margin: 0 0 0 0; }
+  25% { margin: -2px 0 0 2px; }
+  50% { margin: 2px 0 0 -2px; }
+  75% { margin: -1px 0 0 -2px; }
+  100% { margin: 0; }
+}
+
+.imposter-arena-wrapper .hint-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  text-align: center;
+  font-size: 14px;
+  opacity: 0.65;
+  pointer-events: none;
+  z-index: 6;
+  letter-spacing: 1px;
+}
+
+/* Sabotage Menu */
+.imposter-arena-wrapper .sabotage-menu {
+  position: fixed;
+  z-index: 400;
+  min-width: 230px;
+  max-width: 90vw;
+  background: rgba(10, 14, 28, 0.97);
+  border: 1px solid var(--red);
+  border-radius: 14px;
+  box-shadow: 0 0 30px rgba(255, 30, 45, 0.4);
+  padding: 8px;
+}
+
+.imposter-arena-wrapper .sabotage-menu h4 {
+  margin: 4px 8px 8px;
+  font-size: 16px;
+  color: #ff6a74;
+  letter-spacing: 1px;
+}
+
+.imposter-arena-wrapper .sabotage-menu button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: 0;
+  color: var(--ink);
+  font: 700 17px 'Rajdhani', sans-serif;
+  padding: 11px 10px;
+  border-radius: 9px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.imposter-arena-wrapper .sabotage-menu button:hover,
+.imposter-arena-wrapper .sabotage-menu button:active {
+  background: rgba(255, 30, 45, 0.25);
+}
+
+.imposter-arena-wrapper .sabotage-menu button.lk {
+  opacity: 0.45;
+}
+
+.imposter-arena-wrapper .sabotage-menu small {
+  margin-left: auto;
+  opacity: 0.6;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.imposter-arena-wrapper .sabotage-menu .x {
+  color: #9ab;
+  justify-content: center;
+}
+
+.imposter-arena-wrapper .toast-bar {
+  position: fixed;
+  left: 50%;
+  top: 70px;
+  transform: translateX(-50%);
+  background: #222a40;
+  border: 1px solid #556;
+  padding: 8px 14px;
+  border-radius: 10px;
+  z-index: 700;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  font-weight: 700;
+  text-align: center;
+  max-width: 90vw;
+}
+
+.imposter-arena-wrapper .toast-bar.on {
+  opacity: 1;
+}
+
+.imposter-arena-wrapper .modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  background: rgba(0, 0, 0, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.imposter-arena-wrapper .modal-box {
+  background: #0b1022;
+  border: 1px solid #345;
+  border-radius: 16px;
+  padding: 16px;
+  width: min(440px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  text-align: center;
+}
+
+.imposter-arena-wrapper .modal-box h3 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+/* Wires minigame */
+.imposter-arena-wrapper .wr {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 30px;
+}
+
+.imposter-arena-wrapper .wr div {
+  display: grid;
+  gap: 14px;
+}
+
+.imposter-arena-wrapper .wire {
+  width: 60px;
+  height: 26px;
+  border-radius: 8px;
+  border: 2px solid #fff;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.imposter-arena-wrapper .wire.sel {
+  box-shadow: 0 0 12px #fff;
+  transform: scale(1.15);
+}
+
+/* Simon minigame */
+.imposter-arena-wrapper .sg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.imposter-arena-wrapper .pad {
+  height: 78px;
+  border-radius: 14px;
+  border: 0;
+  opacity: 0.45;
+  cursor: pointer;
+}
+
+.imposter-arena-wrapper .pad.on {
+  opacity: 1;
+  box-shadow: 0 0 20px #fff;
+}
+
+/* Asteroids minigame */
+.imposter-arena-wrapper .sky {
+  position: relative;
+  height: 260px;
+  border: 1px solid #345;
+  border-radius: 12px;
+  background: #050814;
+  overflow: hidden;
+}
+
+.imposter-arena-wrapper .ast {
+  position: absolute;
+  font-size: 34px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* Card Swipe minigame */
+.imposter-arena-wrapper .trk {
+  position: relative;
+  height: 70px;
+  background: #16203a;
+  border-radius: 12px;
+  margin: 14px 0;
+  touch-action: none;
+}
+
+.imposter-arena-wrapper .crd {
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 90px;
+  height: 54px;
+  border-radius: 8px;
+  background: #e9edf5;
+  color: #222;
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  cursor: grab;
+}
+
+/* Admin list */
+.imposter-arena-wrapper .admin-pts-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 6px 0 12px;
+  font-weight: 600;
+}
+
+.imposter-arena-wrapper .admin-list {
+  max-height: 34vh;
+  overflow: auto;
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.imposter-arena-wrapper .row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 9px;
+  padding: 5px 8px;
+}
+
+.imposter-arena-wrapper .row i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+.imposter-arena-wrapper .row span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.imposter-arena-wrapper .row .btn-action {
+  padding: 3px 10px;
+}
+
+.imposter-arena-wrapper .add-form {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.imposter-arena-wrapper .add-form input {
+  flex: 1;
+  min-width: 0;
+  background: #0d1426;
+  color: var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 9px;
+  padding: 8px 10px;
+  font: 600 16px 'Rajdhani', sans-serif;
+}
+
+@media (max-width: 600px) {
+  .imposter-arena-wrapper .team-item {
+    width: 104px;
+  }
+  .imposter-arena-wrapper .team-item .n {
+    font-size: 15px;
+  }
+  .imposter-arena-wrapper .team-item svg {
+    width: 36px;
+    height: 42px;
+  }
+  .imposter-arena-wrapper .sabotage-menu {
+    left: 8px !important;
+    right: 8px;
+    top: auto !important;
+    bottom: 8px;
+    max-width: none;
+  }
+}

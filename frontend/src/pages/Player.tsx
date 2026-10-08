@@ -59,12 +59,23 @@ export default function Player() {
     };
   }, []);
 
-  // Redirect if not signed in
+  // Initialize default demo session if accessing directly without login
   useEffect(() => {
     if (!session) {
-      navigate('/', { replace: true });
+      const defaultDemoSession: PlayerSession = {
+        teamId: 'NX-T1',
+        phone: '+91 98333 44556',
+        playerName: 'Devansh Joshi (Demo)',
+        teamName: 'Cyber Phantoms',
+        isImpostor: false,
+        assignedRoom: 'Room 1 (Command Hub)',
+        eventStatus: 'active',
+        currentRound: 1,
+      };
+      localStorage.setItem('nexus_player_session', JSON.stringify(defaultDemoSession));
+      setSession(defaultDemoSession);
     }
-  }, [session, navigate]);
+  }, [session]);
 
   // Toast message auto-dismiss
   useEffect(() => {
@@ -261,6 +272,22 @@ export default function Player() {
     }, 1000);
   };
 
+  const handleToggleRole = () => {
+    if (!session) return;
+    const newIsImpostor = !session.isImpostor;
+    const updated: PlayerSession = {
+      ...session,
+      isImpostor: newIsImpostor,
+      teamId: newIsImpostor ? 'NX-IMPOSTOR' : 'NX-T1',
+      teamName: newIsImpostor ? 'Shadow Syndicate' : 'Cyber Phantoms',
+      playerName: newIsImpostor ? 'Red Impostor (Demo)' : 'Devansh Joshi (Demo)',
+      assignedRoom: newIsImpostor ? 'Reactor' : 'Room 1 (Command Hub)',
+    };
+    setSession(updated);
+    localStorage.setItem('nexus_player_session', JSON.stringify(updated));
+    setToastMessage(`Switched role to ${newIsImpostor ? 'IMPOSTOR' : 'CREWMATE'}`);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('nexus_player_session');
     navigate('/', { replace: true });
@@ -269,9 +296,45 @@ export default function Player() {
   return (
     <div className="player-container">
       <div className="container">
-        <div className="header-bar">
+        <div className="header-bar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
           <div className="brand">Nexus • Among Us</div>
-          <div className="status-badge" id="connStatus">{statusText}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button
+              type="button"
+              onClick={handleToggleRole}
+              style={{
+                background: isImpostor ? 'rgba(216, 52, 63, 0.2)' : 'rgba(79, 179, 162, 0.2)',
+                border: isImpostor ? '1px solid #d8343f' : '1px solid #4fb3a2',
+                color: isImpostor ? '#ff8a8a' : '#4fb3a2',
+                borderRadius: '4px',
+                padding: '4px 10px',
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '11px',
+                cursor: 'pointer',
+                fontWeight: 600,
+              }}
+              title="Click to toggle between Impostor and Crewmate demo roles"
+            >
+              🔄 SWITCH TO {isImpostor ? 'CREWMATE' : 'IMPOSTOR'}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/admin')}
+              style={{
+                background: 'rgba(111, 180, 232, 0.1)',
+                border: '1px solid #3f3f46',
+                color: '#a9d8f5',
+                borderRadius: '4px',
+                padding: '4px 10px',
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '11px',
+                cursor: 'pointer',
+              }}
+            >
+              ⚙️ ADMIN
+            </button>
+            <div className="status-badge" id="connStatus">{statusText}</div>
+          </div>
         </div>
 
         <div className="main-card">

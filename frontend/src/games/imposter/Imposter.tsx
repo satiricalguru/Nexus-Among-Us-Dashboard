@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Team } from '../../types';
 
 export interface ImpostorPower {
@@ -122,6 +123,30 @@ export default function Imposter({
             {isCoolingDown ? 'Cooldown Active' : 'Ready'}
           </span>
         </div>
+
+        <Link
+          to="/imposter"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            padding: '12px',
+            background: 'linear-gradient(135deg, rgba(255, 30, 45, 0.25), rgba(20, 0, 4, 0.9))',
+            border: '2px solid #ff1e2d',
+            borderRadius: '10px',
+            color: '#ff8a8a',
+            fontFamily: "'Rajdhani', 'Chakra Petch', sans-serif",
+            fontSize: '15px',
+            fontWeight: 700,
+            letterSpacing: '0.06em',
+            textDecoration: 'none',
+            marginBottom: '10px',
+            boxShadow: '0 0 16px rgba(255, 30, 45, 0.3)',
+          }}
+        >
+          ⚡ LAUNCH 3D SABOTAGE ARENA (ORBITING TEAMS · LIVE SABOTAGE · RADAR) →
+        </Link>
         <div className="powers-grid" id="powersGrid">
           {IMPOSTOR_POWERS.map(power => {
             const cooldown = cooldowns[power.name] || 0;

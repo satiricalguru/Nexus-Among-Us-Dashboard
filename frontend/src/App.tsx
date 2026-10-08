@@ -10,6 +10,8 @@ const Emoji = lazy(() => import('./games/Emoji/Emoji'));
 const MemeDecoder = lazy(() => import('./games/MemeDecoder/App'));
 const MonkeyType = lazy(() => import('./games/MonkeyType/App'));
 const Pacman = lazy(() => import('./games/Pacman/App'));
+const CrewmateArena = lazy(() => import('./games/crewmate/CrewmateArena'));
+const ImposterArena = lazy(() => import('./games/imposter/ImposterArena'));
 
 export default function App() {
   return (
@@ -35,6 +37,10 @@ export default function App() {
             <Route path="/games/memedecoder" element={<MemeDecoder />} />
             <Route path="/games/monkeytype" element={<MonkeyType />} />
             <Route path="/games/pacman" element={<Pacman />} />
+            <Route path="/crewmate" element={<CrewmateArena />} />
+            <Route path="/imposter" element={<ImposterArena />} />
+            <Route path="/games/crewmate" element={<CrewmateArena />} />
+            <Route path="/games/imposter" element={<ImposterArena />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

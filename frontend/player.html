@@ -436,11 +436,22 @@
       const API_BASE = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
 
       // Step 1: Immediate Synchronous Render from localStorage (0ms delay)
-      const initialSessionRaw = localStorage.getItem('nexus_player_session');
+      let initialSessionRaw = localStorage.getItem('nexus_player_session');
       if (!initialSessionRaw) {
-        window.location.replace('login.html');
-      } else {
-        try {
+        const demoSession = {
+          teamId: 'NX-T1',
+          phone: '+91 98333 44556',
+          playerName: 'Devansh Joshi (Demo)',
+          teamName: 'Cyber Phantoms',
+          isImpostor: false,
+          assignedRoom: 'Room 1 (Command Hub)',
+          eventStatus: 'active',
+          currentRound: 1,
+        };
+        localStorage.setItem('nexus_player_session', JSON.stringify(demoSession));
+        initialSessionRaw = JSON.stringify(demoSession);
+      }
+      try {
           const parsed = JSON.parse(initialSessionRaw);
           currentSession = parsed;
           isImpostor = Boolean(parsed.isImpostor);
@@ -458,7 +469,6 @@
         } catch (e) {
           console.error('Error parsing local session in player.html:', e);
         }
-      }
 
       async function loadSession() {
         if (isRefreshing) return;

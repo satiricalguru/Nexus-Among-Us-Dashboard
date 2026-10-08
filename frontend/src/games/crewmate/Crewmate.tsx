@@ -51,6 +51,30 @@ export default function Crewmate({
           <span id="powersHeaderTitle">Station Mini-Games Console</span>
           <span id="cooldownNotice" style={{ color: '#a1a1aa', fontWeight: 'normal' }}>Ready</span>
         </div>
+
+        <Link
+          to="/crewmate"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            padding: '12px',
+            background: 'linear-gradient(135deg, rgba(31, 143, 255, 0.25), rgba(8, 14, 30, 0.9))',
+            border: '2px solid #1f8fff',
+            borderRadius: '10px',
+            color: '#7fe3ff',
+            fontFamily: "'Rajdhani', 'Chakra Petch', sans-serif",
+            fontSize: '15px',
+            fontWeight: 700,
+            letterSpacing: '0.06em',
+            textDecoration: 'none',
+            marginBottom: '10px',
+            boxShadow: '0 0 16px rgba(31, 143, 255, 0.3)',
+          }}
+        >
+          🚀 LAUNCH 3D CREWMATE TASK ARENA (WIRING · REACTOR · ASTEROIDS · CARD) →
+        </Link>
         <div className="powers-grid" id="powersGrid">
           {games.map(game => (
             <Link

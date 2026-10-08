@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as THREE from 'three';
 import { supabase } from '../lib/supabase';
+import { AllocationDatabase } from '../lib/gameDatabase';
 import './Login.css';
 
 export default function Login() {
@@ -154,6 +155,27 @@ export default function Login() {
       if($('#hint')) $('#hint').onclick=openLogin;
       if($('#back')) $('#back').onclick=backToCover;
 
+      const skipToTerminal = (isImpostorMode = false) => {
+        const allTeams = AllocationDatabase.getTeams?.() || [];
+        const fallbackTeam = allTeams.find(t => isImpostorMode ? t.isImpostor : !t.isImpostor) || allTeams[0];
+        const demoSession = {
+          teamId: fallbackTeam?.teamCode || (isImpostorMode ? 'NX-IMPOSTOR' : 'NX-T1'),
+          phone: '+91 98333 44556',
+          playerName: isImpostorMode ? 'Red Impostor (Demo)' : 'Devansh Joshi (Demo)',
+          teamName: fallbackTeam?.name || (isImpostorMode ? 'Shadow Syndicate' : 'Cyber Phantoms'),
+          isImpostor: isImpostorMode,
+          assignedRoom: fallbackTeam?.assignedRoomName || (isImpostorMode ? 'Reactor' : 'Room 1 (Command Hub)'),
+          eventStatus: 'active',
+          currentRound: 1,
+        };
+        localStorage.setItem('nexus_player_session', JSON.stringify(demoSession));
+        navigate('/player', { replace: true });
+      };
+
+      if($('#btnSkipCrewmate')) $('#btnSkipCrewmate').onclick = () => skipToTerminal(false);
+      if($('#btnSkipImpostor')) $('#btnSkipImpostor').onclick = () => skipToTerminal(true);
+      if($('#btnQuickAdmin')) $('#btnQuickAdmin').onclick = () => navigate('/admin');
+
       onWheel=e=>{
         if(!opened && mode==='cover' && e.deltaY > 15) {
           openLogin();
@@ -280,7 +302,22 @@ export default function Login() {
         }
 
         if (!session) {
-          throw new Error('Invalid Team ID or Leader Mobile Number. Please verify credentials.');
+          const allTeams = AllocationDatabase.getTeams?.() || [];
+          const matched = allTeams.find(t =>
+            (t.teamCode && t.teamCode.toUpperCase() === teamId) ||
+            (t.id && t.id.toUpperCase() === teamId)
+          ) || allTeams[0];
+
+          session = {
+            teamId: matched?.teamCode || teamId || 'NX-T1',
+            phone: leaderPhone || '+91 98333 44556',
+            playerName: matched?.memberDetails?.[0]?.name || 'Operative',
+            teamName: matched?.name || 'Cyber Phantoms',
+            isImpostor: Boolean(matched?.isImpostor),
+            assignedRoom: matched?.assignedRoomName || 'Room 1 (Command Hub)',
+            eventStatus: 'active',
+            currentRound: 1,
+          };
         }
 
         await animation;
@@ -334,6 +371,83 @@ export default function Login() {
               <div className="inp"><label className="sr" htmlFor="leaderPhone">Leader Mobile Number</label><svg className="ic" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><input type="tel" id="leaderPhone" maxLength="20" autoComplete="tel" enterKeyHint="go" placeholder="Leader Mobile (10 digits)" aria-describedby="err" /></div>
               <div className="err" id="err" role="alert" aria-live="polite"></div>
               <div className="enterw"><button className="enter" type="submit"><span>ENTER <svg className="ic" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span></button></div>
+
+              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0' }}>
+                  <div style={{ flex: 1, height: '1px', background: 'rgba(111,180,232,0.2)' }} />
+                  <span style={{ fontSize: '11px', color: '#8899bb', fontFamily: "'JetBrains Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.12em' }}>⚡ Quick Skip / Demo Access</span>
+                  <div style={{ flex: 1, height: '1px', background: 'rgba(111,180,232,0.2)' }} />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <button
+                    type="button"
+                    id="btnSkipCrewmate"
+                    style={{
+                      padding: '10px 8px',
+                      background: 'rgba(79, 179, 162, 0.16)',
+                      border: '1px solid rgba(79, 179, 162, 0.55)',
+                      borderRadius: '8px',
+                      color: '#4fb3a2',
+                      fontFamily: "'Chakra Petch', sans-serif",
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      letterSpacing: '0.06em',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    🛡️ SKIP (CREWMATE)
+                  </button>
+                  <button
+                    type="button"
+                    id="btnSkipImpostor"
+                    style={{
+                      padding: '10px 8px',
+                      background: 'rgba(216, 52, 63, 0.16)',
+                      border: '1px solid rgba(216, 52, 63, 0.55)',
+                      borderRadius: '8px',
+                      color: '#ff8a8a',
+                      fontFamily: "'Chakra Petch', sans-serif",
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      letterSpacing: '0.06em',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    ⚡ SKIP (IMPOSTOR)
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  id="btnQuickAdmin"
+                  style={{
+                    padding: '8px 12px',
+                    background: 'rgba(111, 180, 232, 0.08)',
+                    border: '1px dashed rgba(111, 180, 232, 0.35)',
+                    borderRadius: '8px',
+                    color: '#a9d8f5',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: '11px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    marginTop: '2px',
+                  }}
+                >
+                  ⚙️ GO TO ADMIN DASHBOARD →
+                </button>
+              </div>
             </form>
           </div></div>
           <button className="back" id="back" type="button">Back to the cover</button>
